@@ -1,0 +1,6 @@
+rootProject.name = 'omnipayx'
+
+include 'payment-api'
+include 'routing-engine'
+include 'stripe-connector'
+include 'shared-libs:shared-dto'
