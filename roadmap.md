@@ -24,49 +24,49 @@ Tài liệu này vạch ra lộ trình triển khai chi tiết cho hệ thống 
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 1.1 | Root | `build.gradle` (hoặc `pom.xml`) | Setup multi-module project (Spring Boot 3, Java 21) | `./gradlew build` | N/A |
-| 1.2 | Root | `.editorconfig`, `checkstyle.xml` | Cấu hình code formatting chuẩn | `./gradlew check` | 1.1 |
-| 1.3 | GitHub Actions | `.github/workflows/ci.yml` | Tạo CI skeleton (chạy lint/build trên PR) | Push PR -> check GHA green | 1.1, 1.2 |
-| 1.4 | `shared-libs` | `shared-dto/src/main/java/` | Tạo các common models, enums (Currency, Status) | `./gradlew :shared-dto:build` | 1.1 |
+| ✅ 1.1 | Root | `build.gradle` (hoặc `pom.xml`) | Setup multi-module project (Spring Boot 3, Java 21) | `./gradlew build` | N/A |
+| ✅ 1.2 | Root | `.editorconfig`, `checkstyle.xml` | Cấu hình code formatting chuẩn | `./gradlew check` | ✅ 1.1 |
+| ✅ 1.3 | GitHub Actions | `.github/workflows/ci.yml` | Tạo CI skeleton (chạy lint/build trên PR) | Push PR -> check GHA green | 1.1, 1.2 |
+| ✅ 1.4 | `shared-libs` | `shared-dto/src/main/java/` | Tạo các common models, enums (Currency, Status) | `./gradlew :shared-dto:build` | ✅ 1.1 |
 
 ## Phase 2: Dockerfiles Multi-stage
 **Mục tiêu:** Đóng gói ứng dụng thành các Docker images tối ưu, bảo mật (non-root).
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 2.1 | `payment-api` | `payment-api/Dockerfile` | Viết multi-stage build cho payment-api (JDK builder -> JRE alpine) | `docker build -t payment-api:dev .` | 1.1 |
-| 2.2 | `routing-engine` | `routing-engine/Dockerfile` | Viết multi-stage build cho routing-engine | `docker build -t routing:dev .` | 1.1 |
-| 2.3 | `stripe-connector`| `stripe-connector/Dockerfile`| Viết multi-stage build cho stripe-connector | `docker build -t stripe:dev .` | 1.1 |
-| 2.4 | All | `.dockerignore` | Loại bỏ `.git`, `.gradle`, `build/` khỏi context | Kiểm tra size image < 200MB | 2.1, 2.2, 2.3 |
-| 2.5 | `payment-api` | `payment-api/Dockerfile` | Cấu hình non-root user (UID 1001) trong image | `docker run --rm payment-api:dev whoami` | 2.1 |
+| ✅ 2.1 | `payment-api` | `payment-api/Dockerfile` | Viết multi-stage build cho payment-api (JDK builder -> JRE alpine) | `docker build -t payment-api:dev .` | ✅ 1.1 |
+| ✅ 2.2 | `routing-engine` | `routing-engine/Dockerfile` | Viết multi-stage build cho routing-engine | `docker build -t routing:dev .` | ✅ 1.1 |
+| ✅ 2.3 | `stripe-connector`| `stripe-connector/Dockerfile`| Viết multi-stage build cho stripe-connector | `docker build -t stripe:dev .` | ✅ 1.1 |
+| ✅ 2.4 | All | `.dockerignore` | Loại bỏ `.git`, `.gradle`, `build/` khỏi context | Kiểm tra size image < 200MB | 2.1, 2.2, 2.3 |
+| ✅ 2.5 | `payment-api` | `payment-api/Dockerfile` | Cấu hình non-root user (UID 1001) trong image | `docker run --rm payment-api:dev whoami` | ✅ 2.1 |
 
 ## Phase 3: Docker Compose (Local Stack)
 **Mục tiêu:** Khởi chạy toàn bộ hạ tầng phụ thuộc (dependencies) trên máy local để dev không cần cài đặt rườm rà.
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 3.1 | Infra | `docker-compose.yml` | Thêm PostgreSQL (port 5432) + init script | `docker compose up -d postgres` | N/A |
-| 3.2 | Infra | `docker-compose.yml` | Thêm Redis (port 6379) | `docker compose up -d redis` | N/A |
-| 3.3 | Infra | `docker-compose.yml` | Thêm Zookeeper & Kafka (port 9092) | `docker exec -it kafka kafka-topics.sh --list` | N/A |
-| 3.4 | Infra | `docker-compose.yml` | Thêm WireMock để giả lập Stripe API | `curl localhost:8081/__admin/mappings` | N/A |
-| 3.5 | All | `docker-compose.yml` | Khai báo các app services build từ source | `docker compose up --build` | Phase 2, 3.1-3.4 |
+| ✅ 3.1 | Infra | `docker-compose.yml` | Thêm PostgreSQL (port 5432) + init script | `docker compose up -d postgres` | N/A |
+| ✅ 3.2 | Infra | `docker-compose.yml` | Thêm Redis (port 6379) | `docker compose up -d redis` | N/A |
+| ✅ 3.3 | Infra | `docker-compose.yml` | Thêm Zookeeper & Kafka (port 9092) | `docker exec -it kafka kafka-topics.sh --list` | N/A |
+| ✅ 3.4 | Infra | `docker-compose.yml` | Thêm WireMock để giả lập Stripe API | `curl localhost:8081/__admin/mappings` | N/A |
+| ✅ 3.5 | All | `docker-compose.yml` | Khai báo các app services build từ source | `docker compose up --build` | Phase 2, 3.1-3.4 |
 
 ## Phase 4: Core Domain (Payment API) & Database
 **Mục tiêu:** Xây dựng API tạo thanh toán, xử lý lưu trữ vào PostgreSQL.
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 4.1 | `payment-api` | `src/main/resources/db/migration/`| Tạo Flyway scripts (Bảng `payments`, `outbox`) | App khởi động, DB schema tự tạo | 3.1 |
-| 4.2 | `payment-api` | `PaymentEntity.java`, `Repo` | Mapping JPA entity cho Payment | Viết DataJpaTest (Testcontainers) | 4.1 |
-| 4.3 | `payment-api` | `PaymentController.java` | Viết endpoint `POST /v1/payments` (nhận DTO, validate) | `curl -X POST ...` -> 200/202 | 4.2 |
-| 4.4 | `payment-api` | `IdempotencyFilter.java` | Implement Idempotency dùng Redis `SETNX` | Gửi trùng key -> nhận cache hit | 3.2, 4.3 |
+| ✅ 4.1 | `payment-api` | `src/main/resources/db/migration/`| Tạo Flyway scripts (Bảng `payments`, `outbox`) | App khởi động, DB schema tự tạo | ✅ 3.1 |
+| ✅ 4.2 | `payment-api` | `PaymentEntity.java`, `Repo` | Mapping JPA entity cho Payment | Viết DataJpaTest (Testcontainers) | ✅ 4.1 |
+| ✅ 4.3 | `payment-api` | `PaymentController.java` | Viết endpoint `POST /v1/payments` (nhận DTO, validate) | `curl -X POST ...` -> 200/202 | ✅ 4.2 |
+| ✅ 4.4 | `payment-api` | `IdempotencyFilter.java` | Implement Idempotency dùng Redis `SETNX` | Gửi trùng key -> nhận cache hit | 3.2, 4.3 |
 
 ## Phase 5: Outbox Pattern & Event Publishing
 **Mục tiêu:** Đảm bảo Transactional Messaging (không ghi DB thành công mà gửi Kafka thất bại và ngược lại).
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 5.1 | `payment-api` | `PaymentService.java` | Gom thao tác ghi `payments` và `outbox` vào 1 `@Transactional` | Inspect DB thấy cả 2 bảng có data | 4.3 |
+| ✅ 5.1 | `payment-api` | `PaymentService.java` | Gom thao tác ghi `payments` và `outbox` vào 1 `@Transactional` | Inspect DB thấy cả 2 bảng có data | ✅ 4.3 |
 | 5.2 | `payment-api` | `OutboxRelayScheduler.java` | (Phương án đơn giản) Polling bảng outbox định kỳ đẩy lên Kafka | `kafka-console-consumer.sh` nhận msg | 5.1, 3.3 |
 | 5.3 | `payment-api` | `KafkaPublisher.java` | Viết logic publish msg vào topic `payment.created` | Log in producer success | 5.2 |
 | 5.4 | `payment-api` | `OutboxRelayScheduler.java` | Đánh dấu event trong outbox đã publish (is_sent = true) | Inspect DB | 5.3 |
@@ -98,7 +98,7 @@ Tài liệu này vạch ra lộ trình triển khai chi tiết cho hệ thống 
 |---|---|---|---|---|---|
 | 8.1 | `stripe-connector`| `CircuitBreakerConfig.java` | Bọc external call bằng Circuit Breaker | Ép Wiremock trả 500 liên tục -> ngắt CB | 7.3 |
 | 8.2 | `payment-api` | `RateLimitingFilter.java` | Token Bucket rate limit dùng Redis theo IP/Merchant | Bắn > 10 req/s -> nhận 429 | 3.2, 4.3 |
-| 8.3 | `payment-api` | `SecurityConfig.java` | JWT validation (Spring Security) cho endpoint API | Bắn API thiếu Token -> nhận 401 | 4.3 |
+| 8.3 | `payment-api` | `SecurityConfig.java` | JWT validation (Spring Security) cho endpoint API | Bắn API thiếu Token -> nhận 401 | ✅ 4.3 |
 
 ## Phase 9: Observability & Logging
 **Mục tiêu:** Giám sát hệ thống.
