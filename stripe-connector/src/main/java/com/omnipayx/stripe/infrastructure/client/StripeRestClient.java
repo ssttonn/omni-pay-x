@@ -1,5 +1,6 @@
 package com.omnipayx.stripe.infrastructure.client;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
@@ -19,6 +20,7 @@ public class StripeRestClient {
     }
 
     @Retryable(retryFor = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    @CircuitBreaker(name = "stripe")
     public boolean chargeCard(String paymentPayload) {
         log.info("💳 Đang gọi sang Stripe API giả lập...");
         try {

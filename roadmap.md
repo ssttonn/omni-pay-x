@@ -87,16 +87,16 @@ Tài liệu này vạch ra lộ trình triển khai chi tiết cho hệ thống 
 |---|---|---|---|---|---|
 | ✅ 7.1 | `stripe-connector`| `RouteStripeListener.java` | Consume message từ `route.stripe` | Log consume success | ✅ 6.3 |
 | ✅ 7.2 | `stripe-connector`| `StripeRestClient.java` | Gọi HTTP tới WireMock Stripe (Virtual Threads) | Wiremock log thấy request tới | 3.4, 7.1 |
-| 7.3 | `stripe-connector`| `StripeRestClient.java` | Áp dụng Timeout, Retry logic (Spring Retry/Resilience4j) | Tắt wiremock -> thấy retry logs | ✅ 7.2 |
-| 7.4 | `stripe-connector`| `KafkaPublisher.java` | Publish kết quả về topic `payment.result` | `kafka-console-consumer.sh` | 7.3 |
-| 7.5 | `payment-api` | `PaymentResultListener.java`| Update status Payment trong PostgreSQL (PENDING -> SUCCESS) | E2E flow: POST payment -> DB is SUCCESS| 4.1, 7.4 |
+| ✅ 7.3 | `stripe-connector`| `StripeRestClient.java` | Áp dụng Timeout, Retry logic (Spring Retry/Resilience4j) | Tắt wiremock -> thấy retry logs | ✅ 7.2 |
+| ✅ 7.4 | `stripe-connector`| `KafkaPublisher.java` | Publish kết quả về topic `payment.result` | `kafka-console-consumer.sh` | ✅ 7.3 |
+| ✅ 7.5 | `payment-api` | `PaymentResultListener.java`| Update status Payment trong PostgreSQL (PENDING -> SUCCESS) | E2E flow: POST payment -> DB is SUCCESS| 4.1, 7.4 |
 
 ## Phase 8: Resilience & Security
 **Mục tiêu:** Hệ thống cứng cáp trước lỗi.
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 8.1 | `stripe-connector`| `CircuitBreakerConfig.java` | Bọc external call bằng Circuit Breaker | Ép Wiremock trả 500 liên tục -> ngắt CB | 7.3 |
+| 8.1 | `stripe-connector`| `CircuitBreakerConfig.java` | Bọc external call bằng Circuit Breaker | Ép Wiremock trả 500 liên tục -> ngắt CB | ✅ 7.3 |
 | 8.2 | `payment-api` | `RateLimitingFilter.java` | Token Bucket rate limit dùng Redis theo IP/Merchant | Bắn > 10 req/s -> nhận 429 | 3.2, 4.3 |
 | 8.3 | `payment-api` | `SecurityConfig.java` | JWT validation (Spring Security) cho endpoint API | Bắn API thiếu Token -> nhận 401 | ✅ 4.3 |
 

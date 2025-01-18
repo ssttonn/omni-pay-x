@@ -15,6 +15,14 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+  resilience4j.circuitbreaker:
+    instances:
+      stripe: # Tên của cầu dao
+        slidingWindowSize: 5 # Đánh giá dựa trên 5 request gần nhất
+        failureRateThreshold: 50 # Nếu > 50% bị lỗi (tức 3/5 request) -> NGẮT CẦU DAO
+        waitDurationInOpenState: 10s # Ngắt trong 10 giây rồi mới thử mở lại (Half-Open)
+        permittedNumberOfCallsInHalfOpenState: 3 # Cho phép thử 3 request để kiểm tra Stripe đã sống lại chưa
+
 stripe:
   api:
     url: ${STRIPE_API_URL:http://localhost:8081}
