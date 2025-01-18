@@ -19,6 +19,6 @@ public class RoutingRuleService {
         if ("EUR".equalsIgnoreCase(currency)) {
             return "route.paypal";
         }
-        return "route_stripe";
+        return "route-stripe";
     }
 }

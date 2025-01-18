@@ -67,27 +67,27 @@ Tài liệu này vạch ra lộ trình triển khai chi tiết cho hệ thống 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
 | ✅ 5.1 | `payment-api` | `PaymentService.java` | Gom thao tác ghi `payments` và `outbox` vào 1 `@Transactional` | Inspect DB thấy cả 2 bảng có data | ✅ 4.3 |
-| 5.2 | `payment-api` | `OutboxRelayScheduler.java` | (Phương án đơn giản) Polling bảng outbox định kỳ đẩy lên Kafka | `kafka-console-consumer.sh` nhận msg | 5.1, 3.3 |
-| 5.3 | `payment-api` | `KafkaPublisher.java` | Viết logic publish msg vào topic `payment.created` | Log in producer success | 5.2 |
-| 5.4 | `payment-api` | `OutboxRelayScheduler.java` | Đánh dấu event trong outbox đã publish (is_sent = true) | Inspect DB | 5.3 |
+| ✅ 5.2 | `payment-api` | `OutboxRelayScheduler.java` | (Phương án đơn giản) Polling bảng outbox định kỳ đẩy lên Kafka | `kafka-console-consumer.sh` nhận msg | 5.1, 3.3 |
+| ✅ 5.3 | `payment-api` | `KafkaPublisher.java` | Viết logic publish msg vào topic `payment.created` | Log in producer success | ✅ 5.2 |
+| ✅ 5.4 | `payment-api` | `OutboxRelayScheduler.java` | Đánh dấu event trong outbox đã publish (is_sent = true) | Inspect DB | ✅ 5.3 |
 
 ## Phase 6: Routing Engine
 **Mục tiêu:** Đọc event từ Kafka và quyết định Gateway đích.
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 6.1 | `routing-engine` | `PaymentCreatedListener.java` | Consume message từ topic `payment.created` | Log thấy msg in ra ở routing app | 5.4 |
-| 6.2 | `routing-engine` | `RoutingRuleService.java` | Logic (if-else/rules) chọn stripe hay paypal dựa trên loại thẻ | Unit tests (Mock) | N/A |
-| 6.3 | `routing-engine` | `KafkaPublisher.java` | Publish quyết định vào topic `route.stripe` | Kiểm tra topic `route.stripe` | 6.1, 6.2 |
+| ✅ 6.1 | `routing-engine` | `PaymentCreatedListener.java` | Consume message từ topic `payment.created` | Log thấy msg in ra ở routing app | ✅ 5.4 |
+| ✅ 6.2 | `routing-engine` | `RoutingRuleService.java` | Logic (if-else/rules) chọn stripe hay paypal dựa trên loại thẻ | Unit tests (Mock) | N/A |
+| ✅ 6.3 | `routing-engine` | `KafkaPublisher.java` | Publish quyết định vào topic `route.stripe` | Kiểm tra topic `route.stripe` | 6.1, 6.2 |
 
 ## Phase 7: External Integration (Stripe Connector)
 **Mục tiêu:** Tương tác với hệ thống ngân hàng bên ngoài.
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 7.1 | `stripe-connector`| `RouteStripeListener.java` | Consume message từ `route.stripe` | Log consume success | 6.3 |
-| 7.2 | `stripe-connector`| `StripeRestClient.java` | Gọi HTTP tới WireMock Stripe (Virtual Threads) | Wiremock log thấy request tới | 3.4, 7.1 |
-| 7.3 | `stripe-connector`| `StripeRestClient.java` | Áp dụng Timeout, Retry logic (Spring Retry/Resilience4j) | Tắt wiremock -> thấy retry logs | 7.2 |
+| ✅ 7.1 | `stripe-connector`| `RouteStripeListener.java` | Consume message từ `route.stripe` | Log consume success | ✅ 6.3 |
+| ✅ 7.2 | `stripe-connector`| `StripeRestClient.java` | Gọi HTTP tới WireMock Stripe (Virtual Threads) | Wiremock log thấy request tới | 3.4, 7.1 |
+| 7.3 | `stripe-connector`| `StripeRestClient.java` | Áp dụng Timeout, Retry logic (Spring Retry/Resilience4j) | Tắt wiremock -> thấy retry logs | ✅ 7.2 |
 | 7.4 | `stripe-connector`| `KafkaPublisher.java` | Publish kết quả về topic `payment.result` | `kafka-console-consumer.sh` | 7.3 |
 | 7.5 | `payment-api` | `PaymentResultListener.java`| Update status Payment trong PostgreSQL (PENDING -> SUCCESS) | E2E flow: POST payment -> DB is SUCCESS| 4.1, 7.4 |
 

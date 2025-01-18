@@ -9,11 +9,15 @@ import com.omnipayx.payment.infrastructure.PaymentRepository;
 import com.omnipayx.payment.presentation.dto.PaymentRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OutboxRepository outboxRepository;
@@ -42,5 +46,22 @@ public class PaymentService {
         outboxRepository.save(outbox);
 
         return savedPayment;
+    }
+
+    @Transactional
+    public void updatePaymentStatus(String paymentIdStr, String statusStr) {
+        try {
+            UUID paymentId = UUID.fromString(paymentIdStr);
+            PaymentStatus status = PaymentStatus.valueOf(statusStr);
+            PaymentEntity payment = paymentRepository.findById(paymentId).orElseThrow(() -> new IllegalArgumentException("Payment not existed"));
+
+            payment.setStatus(status);
+
+            paymentRepository.save(payment);
+
+            log.info("✅ Payment [{}] status update successfully, new status: [{}]!", paymentId, status);
+        } catch (Exception e) {
+            log.error("Failed to update payment: {}", e.getMessage());
+        }
     }
 }
