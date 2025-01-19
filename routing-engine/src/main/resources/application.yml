@@ -6,8 +6,24 @@ spring:
     name: routing-engine
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
     consumer:
       group-id: routing-engine-group
       auto-offset-reset: earliest # Đọc lại từ đầu nếu lỡ mất message
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info # Mở toang cửa cho Prometheus vào đo lường
+  tracing:
+    sampling:
+      probability: 1.0 # Bắt 100% request. (Trên Prod xịn chỉ nên set 0.1 để đỡ tốn ổ cứng)
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans" # Gửi tín hiệu về máy chủ Zipkin

@@ -60,5 +60,11 @@ services:
       - "8081:8080"
     command: ["--global-response-templating"]
 
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: omnipayx-zipkin
+    ports:
+      - "9411:9411"
+
 volumes:
   pgdata:
