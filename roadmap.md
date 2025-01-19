@@ -105,9 +105,9 @@ Tài liệu này vạch ra lộ trình triển khai chi tiết cho hệ thống 
 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
-| 9.1 | All | `application.yml` | Cấu hình Actuator expose Prometheus endpoints `/actuator/prometheus`| `curl .../actuator/prometheus` | Phase 4,6,7 |
-| 9.2 | All | `pom.xml`/`build.gradle` | Thêm Micrometer Tracing (OTel), setup log format JSON | Log console ra JSON có TraceID | 9.1 |
-| 9.3 | Infra | `docker-compose.yml` | Bổ sung Jaeger/Zipkin local để view traces | Mở UI Jaeger thấy E2E trace | 9.2 |
+| ✅ 9.1 | All | `application.yml` | Cấu hình Actuator expose Prometheus endpoints `/actuator/prometheus`| `curl .../actuator/prometheus` | Phase 4,6,7 |
+| ✅ 9.2 | All | `pom.xml`/`build.gradle` | Thêm Micrometer Tracing (OTel), setup log format JSON | Log console ra JSON có TraceID | ✅ 9.1 |
+| ✅ 9.3 | Infra | `docker-compose.yml` | Bổ sung Jaeger/Zipkin local để view traces | Mở UI Jaeger thấy E2E trace | ✅ 9.2 |
 
 ## Phase 10: Infrastructure as Code (Terraform)
 **Mục tiêu:** Khởi tạo hạ tầng AWS.
