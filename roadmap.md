@@ -115,9 +115,9 @@ Tài liệu này vạch ra lộ trình triển khai chi tiết cho hệ thống 
 | # | Service/Component | File path | Mục tiêu | Verify commands | Depends on |
 |---|---|---|---|---|---|
 | 10.1| Terraform | `infra/terraform/modules/vpc/` | Tạo VPC, Public/Private Subnets, NAT Gateway | `terraform plan` | N/A |
-| 10.2| Terraform | `infra/terraform/modules/rds/` | Tạo RDS PostgreSQL Multi-AZ trong Private Subnet | `terraform plan` | 10.1 |
-| 10.3| Terraform | `infra/terraform/modules/msk/` | Tạo MSK Cluster, Security Groups | `terraform plan` | 10.1 |
-| 10.4| Terraform | `infra/terraform/modules/eks/` | Tạo EKS Cluster, Managed Node Groups | `terraform plan` | 10.1 |
+| 10.2| Terraform | `infra/terraform/modules/rds/` | Tạo RDS PostgreSQL Multi-AZ trong Private Subnet | `terraform plan` | ✅ 10.1 |
+| 10.3| Terraform | `infra/terraform/modules/msk/` | Tạo MSK Cluster, Security Groups | `terraform plan` | ✅ 10.1 |
+| 10.4| Terraform | `infra/terraform/modules/eks/` | Tạo EKS Cluster, Managed Node Groups | `terraform plan` | ✅ 10.1 |
 | 10.5| Terraform | `infra/terraform/envs/staging/`| Gọi các modules để tạo staging env | `terraform apply` (trên lab) | 10.1-10.4 |
 
 ## Phase 11: EKS Setup & Base Manifests
