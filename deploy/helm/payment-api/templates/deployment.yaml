@@ -5,8 +5,10 @@ metadata:
   labels:
     app: {{ include "payment-api.name" . }}
 spec:
+  # The number of Pods to run concurrently
   replicas: {{ .Values.replicaCount }}
   selector:
+    # Kubernetes uses this selector to know which Pods belong to this Deployment
     matchLabels:
       app: {{ include "payment-api.name" . }}
   template:
@@ -16,25 +18,32 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
+          # The Docker image to pull from ECR or Docker Hub
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          # Injecting environment variables from values.yaml
           env:
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+          # Applying the memory and CPU limits defined in values.yaml
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          # Liveness Probe: Checks if the application is still running and not deadlocked. 
+          # If it fails, Kubernetes will automatically restart the Pod.
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
             initialDelaySeconds: 30
             periodSeconds: 10
+          # Readiness Probe: Checks if the application is fully booted and ready to receive traffic.
+          # If it fails, Kubernetes will stop sending user traffic to this Pod.
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

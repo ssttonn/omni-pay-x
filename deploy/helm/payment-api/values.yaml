@@ -1,29 +1,63 @@
+# ------------------------------------------------------------------------------
+# OmniPayX - Payment API Configuration Values
+# This file contains the default configuration values for the Helm chart.
+# ------------------------------------------------------------------------------
+
+# Number of desired Pods. We set this to 2 by default to ensure High Availability (HA)
+# across different nodes in the Kubernetes cluster.
 replicaCount: 2
 
+# Docker Image Configuration
 image:
+  # The Docker registry and repository path where the image is stored
   repository: omnipayx/payment-api
+  
+  # Image pull policy. 'IfNotPresent' uses the local image if it exists, speeding up deployments.
+  # Use 'Always' for tags like 'latest' to ensure you get the newest version.
   pullPolicy: IfNotPresent
+  
+  # The image tag to pull. Usually corresponds to a specific git commit or release version.
   tag: "latest"
 
+# Kubernetes Service Configuration
+# A Service acts as an internal load balancer, routing traffic to the healthy Pods.
 service:
+  # 'ClusterIP' means this service is only reachable from within the Kubernetes cluster.
+  # This is secure because we don't expose backend APIs directly to the public internet.
   type: ClusterIP
+  
+  # The internal port that other microservices will use to talk to the Payment API
   port: 8080
 
+# Compute Resources required by this container
+# Defining these prevents a single container from consuming all the node's CPU/Memory.
 resources:
+  # 'requests' are the guaranteed minimum resources reserved for this Pod.
   requests:
-    cpu: 250m
-    memory: 512Mi
+    cpu: 250m       # 250 milliCPU (0.25 of a CPU core)
+    memory: 512Mi   # 512 Megabytes of RAM
+    
+  # 'limits' are the hard maximum. If the Pod uses more memory than this, 
+  # Kubernetes will kill it (OOMKilled) to protect the rest of the node.
   limits:
     cpu: 500m
     memory: 1024Mi
 
+# Horizontal Pod Autoscaler (HPA) Configuration
+# HPA automatically increases or decreases the number of Pods based on load.
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 10
+  
+  # If the average CPU usage across all Pods exceeds 70%, K8s will add more Pods.
   targetCPUUtilizationPercentage: 70
 
+# Environment Variables injected directly into the container
 env:
+  # Tells Spring Boot which profile to load (e.g., application-staging.yml)
   SPRING_PROFILES_ACTIVE: "staging"
-  # DB credentials should be injected via External Secrets in a real setup
+  
+  # In a real production setup, sensitive data like DB URLs and passwords 
+  # should NOT be plain text here. They are usually injected by the External Secrets Operator.
   # SPRING_DATASOURCE_URL: "jdbc:postgresql://<rds-endpoint>:5432/omnipayx_db"

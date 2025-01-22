@@ -1,27 +1,41 @@
+# ------------------------------------------------------------------------------
+# OmniPayX - Routing Engine Configuration Values
+# This file contains the default configuration values for the Helm chart.
+# ------------------------------------------------------------------------------
+
+# Number of desired Pods. We set this to 2 by default to ensure High Availability (HA)
 replicaCount: 2
 
+# Docker Image Configuration
 image:
   repository: omnipayx/routing-engine
   pullPolicy: IfNotPresent
   tag: "latest"
 
+# Kubernetes Service Configuration
 service:
   type: ClusterIP
+  # The internal port for the Routing Engine API
   port: 8081
 
+# Compute Resources required by this container
 resources:
   requests:
-    cpu: 250m
-    memory: 512Mi
+    cpu: 250m       # Minimum CPU reserved
+    memory: 512Mi   # Minimum RAM reserved
   limits:
-    cpu: 500m
-    memory: 1024Mi
+    cpu: 500m       # Maximum CPU allowed
+    memory: 1024Mi  # Maximum RAM allowed (will OOMKill if exceeded)
 
+# Horizontal Pod Autoscaler (HPA) Configuration
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 10
+  # Automatically scale up when CPU utilization hits 70%
   targetCPUUtilizationPercentage: 70
 
+# Environment Variables injected directly into the container
 env:
+  # Tells Spring Boot which profile to load (e.g., application-staging.yml)
   SPRING_PROFILES_ACTIVE: "staging"
