@@ -247,4 +247,6 @@ This document outlines a detailed implementation roadmap for the OmniPayX system
 | 2025-01-18 | 8                                  | 8.5 | ✅ Done | Cấu hình Dead Letter Queue (DLQ) cho Kafka Consumer. |
 | 2025-01-18 | 8                                  | 8.6 | ✅ Done | Viết kịch bản k6 Load Test kiểm chứng Rate Limiter, hệ thống chống chịu tốt với JWT 403 và 429. |
 | 2025-01-18 | 9                                  | 9.1, 9.2 | ✅ Done | Bật Actuator Prometheus và gắn Custom Business Metric cho Payment API. |
-| 2025-01-19 | 9                                  | 9.3-9.6  | ✅ Done | Cấu hình thành công Micrometer Tracing và Zipkin. Kiểm chứng TraceID tự động luân chuyển xuyên suốt 3 services qua Kafka. |
+| 2025-01-19 | 9                                  | 9.3-9.6  | ✅ Done | Successfully configured Micrometer Tracing and Zipkin. Verified TraceID propagation across 3 services via Kafka. |
+| 2025-01-20 | 10                                 | 10.1-10.6 | ✅ Done | Completed IaC infrastructure (Terraform) including VPC, RDS, ElastiCache, MSK for staging environment. |
+| 2025-01-22 | 11                                 | 11.1-11.3 | ✅ Done | Created EKS module with Managed Node Groups, configured IRSA for AWS Load Balancer Controller & External Secrets Operator. |
