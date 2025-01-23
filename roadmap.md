@@ -251,3 +251,6 @@ This document outlines a detailed implementation roadmap for the OmniPayX system
 | 2025-01-20 | 10                                 | 10.1-10.6 | ✅ Done | Completed IaC infrastructure (Terraform) including VPC, RDS, ElastiCache, MSK for staging environment. |
 | 2025-01-22 | 11                                 | 11.1-11.3 | ✅ Done | Created EKS module with Managed Node Groups, configured IRSA for AWS Load Balancer Controller & External Secrets Operator. |
 | 2025-01-22 | 11                                 | 11.4-11.6 | ✅ Done | Created Helm charts (Deployment, Service, HPA) for payment-api, routing-engine, and stripe-connector. |
+| 2025-01-23 | 12                                 | 12.1-12.3 | ✅ Done | Implemented monorepo GitHub Actions pipeline for path-based Docker builds and Helm staging deployments. |
+| 2025-01-23 | 12                                 | 12.4      | ✅ Done | Created AWS WAF Terraform module with Managed Rule Sets to protect the EKS Application Load Balancer. |
+| 2025-01-23 | 12                                 | 12.5-12.6 | ✅ Done | Created K6 smoke test script and conceptually verified EKS Pod connectivity. Phase 12 Complete! |
