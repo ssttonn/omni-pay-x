@@ -1,0 +1,8 @@
+# Architecture Decision Records (ADRs)
+
+| # | Title | Status | Context | Decision | Consequences |
+|---|-------|--------|---------|----------|--------------|
+| 1 | EKS over ECS | Accepted | The system requires multi-team ownership (Gateway vs Integration) and complex autoscaling based on Kafka queue length. | We chose Amazon EKS (Kubernetes) as the compute orchestrator instead of ECS. | Higher learning curve and operational overhead, but provides namespaces for team isolation and advanced tooling (Helm, KEDA, Chaos Mesh). |
+| 2 | Outbox Pattern over 2PC | Accepted | Distributed transactions (Two-Phase Commit) create bottlenecks and tight coupling. | We chose the Transactional Outbox pattern. `payment-api` writes the payment state and an event to the same Postgres DB in a single transaction. | Eventual consistency across the system. Complex infrastructure setup required (CDC/Polling) to relay events to Kafka. |
+| 3 | Raw Terraform Resources | Accepted | The user wants to demonstrate deep understanding of AWS primitives rather than relying on black-box community modules. | We wrote Terraform IaC using raw AWS resources (`aws_vpc`, `aws_subnet`, `aws_db_instance`) instead of high-level modules like `terraform-aws-modules/vpc`. | Much more verbose Terraform code. Requires manual configuration of Route Tables, NAT Gateways, and Security Group rules. |
+| 4 | GitHub Environments for Prod | Accepted | Deployments to production must not be fully automated to prevent catastrophic accidents. | We use GitHub Environments to enforce a manual approval gate before the Helm upgrade runs on the Production cluster. | Requires manual intervention (a click) to deploy to Prod, slightly increasing lead time but vastly improving safety. |
