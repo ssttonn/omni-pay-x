@@ -1,0 +1,59 @@
+name: OmniPayX Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image tag to deploy (e.g., latest, v1.2.0)'
+        required: true
+        default: 'latest'
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    
+    # This requires the deployment to wait for Manual Approval from required reviewers
+    # configured in the GitHub Repository Settings for the 'production' environment.
+    environment: production
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig --name omnipayx-production-cluster --region us-east-1
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy Payment API
+        run: |
+          helm upgrade --install payment-api ./deploy/helm/payment-api \
+            --namespace production \
+            --create-namespace \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/omnipayx-payment-api \
+            --set image.tag=${{ github.event.inputs.version }}
+
+      - name: Deploy Routing Engine
+        run: |
+          helm upgrade --install routing-engine ./deploy/helm/routing \
+            --namespace production \
+            --create-namespace \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/omnipayx-routing-engine \
+            --set image.tag=${{ github.event.inputs.version }}
+
+      - name: Deploy Stripe Connector
+        run: |
+          helm upgrade --install stripe-connector ./deploy/helm/stripe \
+            --namespace production \
+            --create-namespace \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/omnipayx-stripe-connector \
+            --set image.tag=${{ github.event.inputs.version }}
