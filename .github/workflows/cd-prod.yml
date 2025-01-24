@@ -1,6 +1,8 @@
 name: OmniPayX Production Deploy
 
 on:
+  # workflow_dispatch allows this pipeline to be triggered manually from the GitHub UI.
+  # This is common for Production deployments so we control exactly WHEN a deployment happens.
   workflow_dispatch:
     inputs:
       version:
@@ -27,6 +29,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # We must pull the Kubeconfig credentials from AWS so that our Helm commands
+      # know how to authenticate with the Production EKS cluster.
       - name: Update Kubeconfig
         run: |
           aws eks update-kubeconfig --name omnipayx-production-cluster --region us-east-1

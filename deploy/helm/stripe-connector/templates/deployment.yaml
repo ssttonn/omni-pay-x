@@ -16,6 +16,8 @@ spec:
       labels:
         app: {{ include "stripe-connector.name" . }}
     spec:
+      # PodAntiAffinity ensures that Kubernetes schedules these Pods on DIFFERENT physical nodes 
+      # or Availability Zones. If an AWS datacenter goes down, we won't lose all our pods at once!
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -27,6 +29,7 @@ spec:
                       operator: In
                       values:
                         - {{ include "stripe-connector.name" . }}
+                # This key tells K8s to spread the pods across different AZs (e.g., us-east-1a, us-east-1b)
                 topologyKey: topology.kubernetes.io/zone
       containers:
         - name: {{ .Chart.Name }}

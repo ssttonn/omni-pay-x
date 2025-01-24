@@ -1,3 +1,4 @@
+# PodDisruptionBudgets (PDB) protect against voluntary disruptions (like Node Upgrades or Scaling).
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -5,6 +6,8 @@ metadata:
   labels:
     app: {{ include "stripe-connector.name" . }}
 spec:
+  # This guarantees that at least 1 Pod will ALWAYS be running, even if Kubernetes 
+  # wants to restart the entire cluster node-by-node. It will wait for a new pod to spin up first!
   minAvailable: 1
   selector:
     matchLabels:
