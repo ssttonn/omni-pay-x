@@ -441,13 +441,13 @@ architecture-beta
 ---
 
 ## 11. Acceptance Criteria / DoD (Definition of Done)
-- [ ] Code coverage > 80%.
-- [ ] Tích hợp Testcontainers cho database và Kafka trong unit tests.
-- [ ] `docker compose up` chạy thành công local, có mock Stripe.
-- [ ] Terraform plan trên `staging` không báo lỗi, các module liên kết đúng VPC.
-- [ ] CI pipeline đẩy image thành công lên ECR.
-- [ ] Secrets (Stripe API Key) được đọc thành công từ AWS Secrets Manager, không hardcode.
-- [ ] Thử nghiệm failover: kill Redis local, hệ thống bypass cache không sập.
+- [x] Code coverage > 80%.
+- [x] Tích hợp Testcontainers cho database và Kafka trong unit tests.
+- [x] `docker compose up` chạy thành công local, có mock Stripe.
+- [x] Terraform plan trên `staging` không báo lỗi, các module liên kết đúng VPC.
+- [x] CI pipeline đẩy image thành công lên ECR.
+- [x] Secrets (Stripe API Key) được đọc thành công từ AWS Secrets Manager, không hardcode.
+- [x] Thử nghiệm failover: kill Redis local, hệ thống bypass cache không sập.
 
 ## 12. Appendix
 - **ADR 01:** Chọn EKS vì khả năng quản trị đa team và hệ sinh thái tooling.

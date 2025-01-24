@@ -254,3 +254,7 @@ This document outlines a detailed implementation roadmap for the OmniPayX system
 | 2025-01-23 | 12                                 | 12.1-12.3 | ✅ Done | Implemented monorepo GitHub Actions pipeline for path-based Docker builds and Helm staging deployments. |
 | 2025-01-23 | 12                                 | 12.4      | ✅ Done | Created AWS WAF Terraform module with Managed Rule Sets to protect the EKS Application Load Balancer. |
 | 2025-01-23 | 12                                 | 12.5-12.6 | ✅ Done | Created K6 smoke test script and conceptually verified EKS Pod connectivity. Phase 12 Complete! |
+| 2025-01-24 | 13                                 | 13.1      | ✅ Done | Configured Production CI/CD pipeline with GitHub Environments for manual deployment approval gates. |
+| 2025-01-24 | 13                                 | 13.2-13.5 | ✅ Done | Wrote runbooks for Kubernetes rollbacks and Chaos Drills (RDS failover, Redis fail-open). |
+| 2025-01-24 | 14                                 | 14.1-14.4 | ✅ Done | Added PodDisruptionBudgets and PodAntiAffinity to Helm charts for HA. Created On-Call Alert playbook. |
+| 2025-01-24 | 14                                 | 14.5      | ✅ Done | Finalized README.md and Roadmap. Project complete! |
