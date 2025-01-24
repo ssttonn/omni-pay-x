@@ -16,6 +16,18 @@ spec:
       labels:
         app: {{ include "stripe-connector.name" . }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - {{ include "stripe-connector.name" . }}
+                topologyKey: topology.kubernetes.io/zone
       containers:
         - name: {{ .Chart.Name }}
           # The Docker image to pull from ECR or Docker Hub

@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "stripe-connector.fullname" . }}
+  labels:
+    app: {{ include "stripe-connector.name" . }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ include "stripe-connector.name" . }}
