@@ -3,38 +3,38 @@
 ## Actual Architecture (Current State)
 
 ```mermaid
-C4Context
-    title OmniPayX - Current Container Diagram
-    Person(user, "Merchant / Client", "Sends payment requests")
-    System_Boundary(c1, "OmniPayX Core") {
-        Container(paymentApi, "Payment API", "Java 21, Spring Boot", "Receives request, Auth, Rate Limit (WAF/Redis)")
-        Container(routingEngine, "Routing Engine", "Java 21", "Evaluates routing rules")
-        Container(stripeConn, "Stripe Connector", "Java 21", "Integrates with Stripe")
-        ContainerDb(pgCore, "PostgreSQL", "RDS Multi-AZ", "Payment State & Outbox Table")
-        ContainerDb(redisCore, "Redis", "ElastiCache", "Idempotency & Rate Limiting")
-        ContainerDb(kafka, "Event Bus", "MSK", "Kafka Topics: payment.created, route.stripe, payment.result")
-    }
-    System_Ext(stripe, "Stripe API", "External Payment Provider")
-    System_Ext(waf, "AWS WAF", "Application Firewall")
-    System_Ext(alb, "AWS ALB", "Load Balancer")
-
-    Rel(user, waf, "POST /v1/payments (REST)")
-    Rel(waf, alb, "Forward Traffic")
-    Rel(alb, paymentApi, "Ingress Route")
+flowchart TD
+    user((Merchant / Client))
+    stripe[Stripe API]
+    waf[AWS WAF]
+    alb[AWS ALB]
     
-    Rel(paymentApi, redisCore, "Check Idempotency")
-    Rel(paymentApi, pgCore, "Insert Payment & Outbox")
-    Rel(paymentApi, kafka, "Publish [payment.created]")
+    subgraph OmniPayX Core
+        paymentApi[Payment API<br/>Java 21, Spring Boot]
+        routingEngine[Routing Engine<br/>Java 21]
+        stripeConn[Stripe Connector<br/>Java 21]
+        pgCore[(PostgreSQL)]
+        redisCore[(Redis)]
+        kafka[(Event Bus / MSK)]
+    end
     
-    Rel(kafka, routingEngine, "Consume [payment.created]")
-    Rel(routingEngine, kafka, "Publish [route.stripe]")
+    user -->|POST /v1/payments| waf
+    waf -->|Forward Traffic| alb
+    alb -->|Ingress Route| paymentApi
     
-    Rel(kafka, stripeConn, "Consume [route.stripe]")
-    Rel(stripeConn, stripe, "POST /v1/charges")
-    Rel(stripeConn, kafka, "Publish [payment.result]")
+    paymentApi -->|Check Idempotency| redisCore
+    paymentApi -->|Insert Payment & Outbox| pgCore
+    paymentApi -->|Publish payment.created| kafka
     
-    Rel(kafka, paymentApi, "Consume [payment.result]")
-    Rel(paymentApi, pgCore, "Update Payment Status")
+    kafka -->|Consume payment.created| routingEngine
+    routingEngine -->|Publish route.stripe| kafka
+    
+    kafka -->|Consume route.stripe| stripeConn
+    stripeConn -->|POST /v1/charges| stripe
+    stripeConn -->|Publish payment.result| kafka
+    
+    kafka -->|Consume payment.result| paymentApi
+    paymentApi -->|Update Payment Status| pgCore
 ```
 
 ## Spec vs Actual

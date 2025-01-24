@@ -114,31 +114,31 @@ Kiến trúc **Microservices** kết hợp **Event-Driven** được chọn đ�
 ### 3.1. C4 / Container Diagram (Services & Stores)
 
 ```mermaid
-C4Context
-    title OmniPayX - Container Diagram
-    Person(user, "Merchant / Client", "Gửi yêu cầu thanh toán")
-    System_Boundary(c1, "OmniPayX Core") {
-        Container(paymentApi, "Payment API", "Java 21, Spring Boot", "Nhận request, Rate Limit, Auth")
-        Container(routingEngine, "Routing Engine", "Java 21", "Định tuyến giao dịch")
-        Container(stripeConn, "Stripe Connector", "Java 21", "Tích hợp Stripe")
-        ContainerDb(pgCore, "PostgreSQL (Core)", "RDS", "Lưu trữ Payment State & Outbox")
-        ContainerDb(redisCore, "Redis (Idempotency)", "ElastiCache", "Idempotency keys, Rate limits")
-        ContainerDb(kafka, "Event Bus", "MSK", "Kafka Topics: payment.created, payment.result")
-    }
-    System_Ext(stripe, "Stripe API", "External Payment Provider")
-    System_Ext(iam, "Identity Provider", "OAuth2 / JWT")
-
-    Rel(user, paymentApi, "POST /v1/payments (REST)")
-    Rel(paymentApi, iam, "Validate Token")
-    Rel(paymentApi, redisCore, "Check Idempotency & Rate Limit")
-    Rel(paymentApi, pgCore, "Insert Payment (Pending) & Outbox")
-    Rel(paymentApi, kafka, "Publish (via Outbox/CDC)")
-    Rel(kafka, routingEngine, "Consume payment.created")
-    Rel(routingEngine, kafka, "Publish route.stripe")
-    Rel(kafka, stripeConn, "Consume route.stripe")
-    Rel(stripeConn, stripe, "POST /v1/charges")
-    Rel(stripeConn, kafka, "Publish payment.result")
-    Rel(kafka, paymentApi, "Consume result to update state")
+flowchart TD
+    user((Merchant / Client))
+    stripe[Stripe API]
+    iam[Identity Provider]
+    
+    subgraph OmniPayX Core
+        paymentApi[Payment API<br/>Java 21, Spring Boot]
+        routingEngine[Routing Engine<br/>Java 21]
+        stripeConn[Stripe Connector<br/>Java 21]
+        pgCore[(PostgreSQL Core)]
+        redisCore[(Redis Idempotency)]
+        kafka[(Event Bus / MSK)]
+    end
+    
+    user -->|POST /v1/payments| paymentApi
+    paymentApi -->|Validate Token| iam
+    paymentApi -->|Check Idempotency| redisCore
+    paymentApi -->|Insert Payment & Outbox| pgCore
+    paymentApi -->|Publish via Outbox| kafka
+    kafka -->|Consume payment.created| routingEngine
+    routingEngine -->|Publish route.stripe| kafka
+    kafka -->|Consume route.stripe| stripeConn
+    stripeConn -->|POST /v1/charges| stripe
+    stripeConn -->|Publish payment.result| kafka
+    kafka -->|Consume result| paymentApi
 ```
 *Chú thích: Biểu đồ C4 thể hiện các luồng giao tiếp giữa client, hệ thống nội bộ và các provider bên ngoài. Các database và event bus đóng vai trò là xương sống kết nối.*
 
@@ -257,24 +257,23 @@ flowchart LR
 ### 3.6. AWS Compute Deploy Topology (EKS)
 
 ```mermaid
-architecture-beta
-    group vpc(cloud)[VPC]
-    group eks(cloud)[EKS Cluster] in vpc
+graph TD
+    subgraph VPC
+        ALB[Application Load Balancer]
+        RDS[(RDS Multi-AZ)]
+        MSK[(MSK Kafka)]
+        subgraph EKS Cluster
+            IG[Ingress Controller]
+            API[Payment API Pods]
+            Route[Routing Pods]
+        end
+    end
     
-    service alb(server)[Application Load Balancer] in vpc
-    service ig(server)[Ingress Controller] in eks
-    
-    service api(server)[Payment API Pods] in eks
-    service route(server)[Routing Pods] in eks
-    
-    service rds(database)[RDS Multi-AZ] in vpc
-    service msk(database)[MSK Kafka] in vpc
-    
-    alb:R -- L:ig
-    ig:R -- L:api
-    api:R -- L:rds
-    api:B -- T:msk
-    route:T -- B:msk
+    ALB --> IG
+    IG --> API
+    API --> RDS
+    API --> MSK
+    Route --> MSK
 ```
 *Chú thích: EKS topology. ALB forward traffic vào Ingress Controller trong cụm EKS. Các service giao tiếp nội bộ qua Kubernetes Service và gọi ra RDS/MSK trong cùng VPC qua private subnets.*
 
